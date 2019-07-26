@@ -3,43 +3,43 @@ import {Link} from 'react-router-dom';
 import JsonPlaceHolder from '../api/jsonPlaceHolder';
 
 class PostDetail extends React.Component{
-    state={post: null};
-    async componentDidMount(){
+    state={post: null,userName:''};
+    componentWillMount(){
         const postId=this.props.match.params.postId;
-        const postDetail= await JsonPlaceHolder.get(`/posts/${postId}`);
-        // console.log(allPosts.data);
-        
-        this.setState({post:postDetail.data });
+        JsonPlaceHolder.get(`/posts/${postId}`).then(postDetail=>{
+            this.setState({post:postDetail.data });
+        });
+           
+    }
+    componentDidUpdate(){
+        if (this.state.post && !this.state.userName) {
+            JsonPlaceHolder.get(`/users/${this.state.post.userId}`).then(user=>{
+                this.setState({userName:user.data.name });
+            });
+        }
+
     }
     PostDetail(){
-        console.log(this.state.post);
-        const {post}=this.state;
+        const {post,userName}=this.state;
         if(this.state.post){
             return(
-                <div className="card mb-4" key={post.id}>
-                    <div className="card-body">
-                        <h2 className="card-title">{post.title}</h2>
-                        <p className="card-text">{post.body}</p>
-                        <Link to="#" className="btn btn-primary">Read More &rarr;</Link>
-                    </div>
-                    {/* <div className="card-footer text-muted">
-                        Posted on January 1, 2017 by
-                        <a href="#">Start Bootstrap</a>
-                    </div> */}
+                <div key={post.id}>
+                    <h1 className="mt-4">{post.title.toUpperCase()}</h1>
+                    <p className="lead">
+                        by
+                    <a href="#"> {userName}</a>
+                    </p>
+                    <hr />
+                    <p className="card-text">{post.body}</p>
                 </div>
             );
         }
     }
     render(){
-        console.log(this.props.match.params.postId);
-        
+        // console.log(this.props.match.params.postId);
         return(
-            <div className="container">
-                <div className="row">
-                    <div className="col-md-8">
-                        {this.PostDetail()}
-                    </div>
-                </div>
+            <div className="col-lg-12">
+                {this.PostDetail()}
             </div>
         );
     };
